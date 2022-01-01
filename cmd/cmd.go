@@ -26,11 +26,11 @@ func init() {
 
 func Execute() {
 	rootCmd.AddCommand(agent.InitCMD(&configPath))
-	rootCmd.AddCommand(crd.Cmd)
-	rootCmd.AddCommand(dns.Cmd)
+	rootCmd.AddCommand(crd.InitCMD(&configPath))
+	rootCmd.AddCommand(dns.InitCMD(&configPath))
 	rootCmd.AddCommand(nodescheduler.InitCMD(&configPath))
-	rootCmd.AddCommand(svcstore.Cmd)
-	rootCmd.AddCommand(netproxy.Cmd)
+	rootCmd.AddCommand(svcstore.InitCMD(&configPath))
+	rootCmd.AddCommand(netproxy.InitCMD(&configPath))
 	if err := rootCmd.Execute(); err != nil {
 		panic(err)
 	}
