@@ -1,0 +1,33 @@
+node_name: 'nodexxxx'
+agent:
+  imagecache:
+    addr: '0.0.0.0:8888'
+    remote_registry: 'https://registry-1.docker.io'
+    current_ip: '10.211.55.2'
+    cache_path: '/root/cache'
+    controller_addr: '10.211.55.2:8887'
+  netproxy:
+    cloud_grpc_addr: '10.211.55.2:8889'
+    addr: ':8880'
+  node_monitor:
+    controller_addr: 'http://10.211.55.52:9000'
+cloud:
+  crd:
+    k8sconfig: '/Users/nizhenyang/Desktop/论文 workspace/code/cloudedgenetwork/k8sconfig.yaml'
+    store_addr: 'http://10.211.55.2:8881'
+  dns:
+    cloud_ep_ips:
+      - '10.211.55.2'
+    port: '53530'
+  netproxy:  # TODO: 目前仅支持单 ip 单端口，http 代理
+    grpc_addr: ':8889'
+    store_addr: 'http://10.211.55.2:8881'
+    http_proxy_addr: ':8080'
+  node_scheduler:
+    addr: ':8080'
+  service_store:
+    addr: ':8881'
+    k8sconfig: '/Users/nizhenyang/Desktop/论文 workspace/code/cloudedgenetwork/k8sconfig.yaml'
+
+
+
