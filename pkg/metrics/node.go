@@ -43,7 +43,10 @@ type NodeMetric struct {
 }
 
 type NodeInfo struct {
-	ID string `json:"id"`
+	ID              string `json:"id"`
+	IP              string `json:"ip"`
+	CacheServerPort string `json:"cache_server_port"`
+	Region          string `json:"region"`
 }
 
 type CPU struct {

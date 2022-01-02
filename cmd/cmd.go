@@ -4,6 +4,7 @@ import (
 	"github.com/schwarzeni/k8senhance/agent"
 	"github.com/schwarzeni/k8senhance/crd"
 	"github.com/schwarzeni/k8senhance/dns"
+	"github.com/schwarzeni/k8senhance/imagecachecontroller"
 	"github.com/schwarzeni/k8senhance/netproxy"
 	"github.com/schwarzeni/k8senhance/nodescheduler"
 	"github.com/schwarzeni/k8senhance/svcstore"
@@ -21,7 +22,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "config file path")
+	rootCmd.PersistentFlags().StringVar(&configPath, "config", "/root/k8senhance.yaml", "config file path")
 }
 
 func Execute() {
@@ -31,6 +32,7 @@ func Execute() {
 	rootCmd.AddCommand(nodescheduler.InitCMD(&configPath))
 	rootCmd.AddCommand(svcstore.InitCMD(&configPath))
 	rootCmd.AddCommand(netproxy.InitCMD(&configPath))
+	rootCmd.AddCommand(imagecachecontroller.InitCMD(&configPath))
 	if err := rootCmd.Execute(); err != nil {
 		panic(err)
 	}

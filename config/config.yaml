@@ -5,7 +5,8 @@ agent:
     remote_registry: 'https://registry-1.docker.io'
     current_ip: '10.211.55.2'
     cache_path: '/root/cache'
-    controller_addr: '10.211.55.2:8887'
+    controller_addr: 'http://10.211.55.2:8089'
+    region: 'xxxx'
   netproxy:
     cloud_grpc_addr: '10.211.55.2:8889'
     addr: ':8880'
@@ -28,6 +29,8 @@ cloud:
   service_store:
     addr: ':8881'
     k8sconfig: '/Users/nizhenyang/Desktop/论文 workspace/code/cloudedgenetwork/k8sconfig.yaml'
+  image_cache_controller:
+    addr: ':8089'
 
 
 

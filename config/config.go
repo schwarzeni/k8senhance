@@ -15,6 +15,7 @@ type Config struct {
 			CurrentIP      string `yaml:"current_ip"`
 			CachePath      string `yaml:"cache_path"`
 			ControllerAddr string `yaml:"controller_addr"`
+			Region         string `yaml:"region"`
 		} `yaml:"imagecache"`
 		Netproxy struct {
 			CloudGrpcAddr string `yaml:"cloud_grpc_addr"`
@@ -45,6 +46,9 @@ type Config struct {
 			Addr      string `yaml:"addr"`
 			K8Sconfig string `yaml:"k8sconfig"`
 		} `yaml:"service_store"`
+		ImageCacheController struct {
+			Addr string `yaml:"addr"`
+		} `yaml:"image_cache_controller"`
 	} `yaml:"cloud"`
 }
 
