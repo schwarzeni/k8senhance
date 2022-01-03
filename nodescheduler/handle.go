@@ -10,10 +10,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/schwarzeni/k8senhance/pkg/metrics"
+	"github.com/schwarzeni/k8senhance/pkg/processor"
 	schedulerapi "k8s.io/kube-scheduler/extender/v1"
 )
 
-var metricProcessor = NewScoreProcessor()
+var metricProcessor = processor.NewScoreProcessor()
 
 var offlineTimeBound = time.Second * 5
 
@@ -42,7 +43,7 @@ func processdata(rawMetric *metrics.NodeMetric) {
 	checkIfOffline(record)
 
 	// 判断数据是否合法，如果是，计算计算标准差平均值；如果不是，则使用上一次的数据
-	for _, processor := range ProcessorMap {
+	for _, processor := range processor.ProcessorMap {
 		processor.N(record)
 		processor.Even(record)
 		processor.Variance(record)

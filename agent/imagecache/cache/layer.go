@@ -62,7 +62,7 @@ func ParseAndSetLayersInfo(rawData []byte) error {
 	return nil
 }
 
-func Layer(layerid string) (int, bool, error) {
+func LayerInfo(layerid string) (int, bool, error) {
 	layerInfoDBLock.RLock()
 	defer layerInfoDBLock.RUnlock()
 	size, ok := layerInfoDB[layerid]

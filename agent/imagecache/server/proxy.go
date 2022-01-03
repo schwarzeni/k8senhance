@@ -9,7 +9,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"path"
@@ -75,9 +74,8 @@ func HandleProxy(server *Server) {
 		if sourceType == "blobs" {
 			layerID := sourceID[len("sha256:"):]
 			responses := queryForLayer(server.conf.NodeName, layerID)
-			// TODO: 这里先忽略决策，随机选一个
-			if len(responses) > 0 {
-				targetNode := responses[rand.Intn(len(responses))]
+			if idx := prioritizeNodes(layerID, responses); idx >= 0 {
+				targetNode := responses[idx]
 				resp, err := layerdl(targetNode.Metric.NodeInfo.IP, layerID)
 				if err == nil {
 					defer resp.Body.Close()
@@ -98,6 +96,8 @@ func HandleProxy(server *Server) {
 					return
 				}
 				log.Printf("[info] dl layer %s from %s has err: %v, using dockerhub instead\n", layerID, targetNode.Metric.NodeInfo.IP, err)
+			} else {
+				log.Printf("[info] prioritize node result -1, using dockerhub instead")
 			}
 		}
 

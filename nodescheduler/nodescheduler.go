@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/schwarzeni/k8senhance/config"
 	"github.com/schwarzeni/k8senhance/pkg/metrics"
+	"github.com/schwarzeni/k8senhance/pkg/processor"
 	"github.com/spf13/cobra"
 )
 
@@ -60,12 +61,12 @@ func service() error {
 
 		w, err := strconv.Atoi(newWeight)
 		id, err2 := strconv.Atoi(processorID)
-		_, ok := ProcessorMap[ProcessorType(id)]
+		_, ok := processor.ProcessorMap[processor.ProcessorType(id)]
 		if err != nil || err2 != nil || w < 0 || w > math.MaxInt32 || !ok {
 			c.Status(http.StatusBadRequest)
 			return
 		}
-		ProcessorMap[ProcessorType(id)].ExtraWeight(int32(w))
+		processor.ProcessorMap[processor.ProcessorType(id)].ExtraWeight(int32(w))
 	})
 	go func() {
 		for metric := range ch {
