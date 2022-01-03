@@ -42,6 +42,14 @@ func HandleService(server *Server) {
 		if err != nil {
 			log.Printf("[err] failed to open %s: %v\n", path.Join(cacheFolder, layerid), err)
 		}
+		rawURL := req.URL.Query().Get("rawurl")
+		if header, ok := cache.HTTPHeaderCache(rawURL); ok {
+			for k, vv := range header {
+				for _, v := range vv {
+					resp.Header().Add(k, v)
+				}
+			}
+		}
 		defer f.Close()
 		_, _ = io.Copy(resp, f)
 	}).Methods(http.MethodGet)
@@ -58,6 +66,14 @@ func HandleService(server *Server) {
 		if !ok {
 			w.WriteHeader(http.StatusNotFound)
 			return
+		}
+		rawURL := r.URL.Query().Get("rawurl")
+		if header, ok := cache.HTTPHeaderCache(rawURL); ok {
+			for k, vv := range header {
+				for _, v := range vv {
+					w.Header().Add(k, v)
+				}
+			}
 		}
 		_, _ = io.Copy(w, bytes.NewReader(data))
 	}).Methods(http.MethodGet)

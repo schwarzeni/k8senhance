@@ -6,6 +6,7 @@
 - imagecachecontroller 实现功能：定时移除未及时上传心跳的节点信息
 - 重构一下节点数据是由那个结构体记录的，from cache.metric or response or cache.nodeinfos
 - 研究 response 需要返回那些标准性的 header （目前阶段还需要请求一下远端的仓库）
+- 实现 manifest 代理策略（仅在断网的情况下使用？）
 
 ---
 

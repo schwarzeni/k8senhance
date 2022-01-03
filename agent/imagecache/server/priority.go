@@ -12,8 +12,13 @@ var metricProcessor = processor.NewScoreProcessor()
 // 如果不存在，则返回 -1
 func prioritizeNodes(layer string, nodes []*QueryLayerRespDTO) int {
 	// TODO: extract max size to setting
+	//log.Println("[debug] priority nodes")
+	//for _, node := range nodes {
+	//	fmt.Printf("%+v", *node)
+	//}
 	size, ok, _ := cache.LayerInfo(layer)
-	if ok && size < 1024*1024*5 {
+	//log.Println("[debug] priority size", layer, size)
+	if ok && size < 1024*500 {
 		return -1
 	}
 	maxScore := 0.0
@@ -25,6 +30,7 @@ func prioritizeNodes(layer string, nodes []*QueryLayerRespDTO) int {
 			maxScore = score
 			maxScoreIdx = idx
 		}
+		//log.Println("[debug] priority score", node, score)
 	}
 	return maxScoreIdx
 }

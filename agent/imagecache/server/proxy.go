@@ -42,10 +42,11 @@ func HandleProxy(server *Server) {
 		if sourceType == "manifests" {
 			_ = withDockerhubPullAuth(r, imageName)
 			tmpResp, _ := doGetProxy(remoteRegister, r)
+			cache.SetHTTPHeaderCache(r.RequestURI, tmpResp.Header)
 			for k, vv := range tmpResp.Header {
 				for _, v := range vv {
 					w.Header().Add(k, v)
-					log.Println("[debug] manifest header: ", k, v)
+					//log.Println("[debug] manifest header: ", k, v)
 				}
 			}
 			rawData, _ := ioutil.ReadAll(tmpResp.Body)
@@ -76,20 +77,26 @@ func HandleProxy(server *Server) {
 			responses := queryForLayer(server.conf.NodeName, layerID)
 			if idx := prioritizeNodes(layerID, responses); idx >= 0 {
 				targetNode := responses[idx]
-				resp, err := layerdl(targetNode.Metric.NodeInfo.IP, layerID)
+				resp, err := layerdl(targetNode.Metric.NodeInfo.IP, layerID, r.RequestURI)
 				if err == nil {
 					defer resp.Body.Close()
 					log.Printf("[info] dl layer %s from %s\n", layerID, targetNode.Metric.NodeInfo.IP)
-					_ = withDockerhubPullAuth(r, imageName)
-					// TODO: need get the header, 否则无效，不清楚哪些 header 起作用
-					tmpResp, _ := doGetProxy(remoteRegister, r)
-					for k, vv := range tmpResp.Header {
+					//_ = withDockerhubPullAuth(r, imageName)
+					//// TODO: need get the header, 否则无效，不清楚哪些 header 起作用
+					//tmpResp, _ := doGetProxy(remoteRegister, r)
+					//for k, vv := range tmpResp.Header {
+					//	for _, v := range vv {
+					//		w.Header().Add(k, v)
+					//		//log.Println("[debug] blobs header: ", k, v)
+					//	}
+					//}
+					//tmpResp.Body.Close()
+					for k, vv := range resp.Header {
 						for _, v := range vv {
 							w.Header().Add(k, v)
 							log.Println("[debug] blobs header: ", k, v)
 						}
 					}
-					tmpResp.Body.Close()
 					if _, err = bufio.NewReader(resp.Body).WriteTo(writer); err != nil {
 						//panic(err)
 					}
@@ -119,6 +126,7 @@ func HandleProxy(server *Server) {
 				w.Header().Add(k, v)
 			}
 		}
+		cache.SetHTTPHeaderCache(r.RequestURI, resp.Header)
 		if _, err = bufio.NewReader(resp.Body).WriteTo(writer); err != nil {
 			//panic(err)
 		}
@@ -173,8 +181,8 @@ func queryForLayer(currNode string, layerID string) (responses []*QueryLayerResp
 	return responses
 }
 
-func layerdl(targetNode string, layerID string) (*http.Response, error) {
-	return http.Get("http://" + targetNode + ":8888/agentapi/v1/layerdl/" + layerID)
+func layerdl(targetNode string, layerID string, originURL string) (*http.Response, error) {
+	return http.Get("http://" + targetNode + ":8888/agentapi/v1/layerdl/" + layerID + "?rawurl=" + originURL)
 }
 
 var (
