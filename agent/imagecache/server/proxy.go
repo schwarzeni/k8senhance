@@ -3,6 +3,7 @@ package server
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -16,11 +17,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/schwarzeni/k8senhance/pkg/metrics"
-
-	"github.com/schwarzeni/k8senhance/pkg/model"
-
 	"github.com/schwarzeni/k8senhance/agent/imagecache/cache"
+	"github.com/schwarzeni/k8senhance/pkg/metrics"
+	"github.com/schwarzeni/k8senhance/pkg/model"
 )
 
 // TODO: 未实现：缓存 manifest
@@ -28,6 +27,7 @@ func HandleProxy(server *Server) {
 	r := server.r
 	remoteRegister := server.conf.Agent.Imagecache.RemoteRegistry
 	cacheFolder := server.conf.Agent.Imagecache.CachePath
+	_ = os.MkdirAll(cacheFolder, os.ModePerm)
 	r.HandleFunc("/v2/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}).Methods(http.MethodGet)
@@ -39,7 +39,29 @@ func HandleProxy(server *Server) {
 		sourceID := urlItems[5]
 		_ = sourceID
 		_ = sourceType
+
+		if sourceType == "manifests" {
+			_ = withDockerhubPullAuth(r, imageName)
+			tmpResp, _ := doGetProxy(remoteRegister, r)
+			for k, vv := range tmpResp.Header {
+				for _, v := range vv {
+					w.Header().Add(k, v)
+					log.Println("[debug] manifest header: ", k, v)
+				}
+			}
+			rawData, _ := ioutil.ReadAll(tmpResp.Body)
+			tmpResp.Body.Close()
+			//log.Printf("[debug] %s, manifest %s: %s\n", imageName, sourceID, string(rawData))
+			_ = cache.SetImageManifest(imageName, sourceID, rawData)
+			_ = cache.ParseAndSetLayersInfo(rawData)
+			if _, err := bytes.NewReader(rawData).WriteTo(w); err != nil {
+				//panic(err)
+			}
+			return
+		}
+
 		var writer io.Writer = w
+		// 双写，在本地缓存一份
 		if sourceType == "blobs" {
 			layerID := sourceID[len("sha256:"):]
 			cacheFile := path.Join(cacheFolder, layerID)
@@ -50,7 +72,6 @@ func HandleProxy(server *Server) {
 			defer f.Close()
 			writer = io.MultiWriter(w, f)
 		}
-
 		if sourceType == "blobs" {
 			layerID := sourceID[len("sha256:"):]
 			responses := queryForLayer(server.conf.NodeName, layerID)
@@ -67,7 +88,7 @@ func HandleProxy(server *Server) {
 					for k, vv := range tmpResp.Header {
 						for _, v := range vv {
 							w.Header().Add(k, v)
-							//log.Println("[debug] header: ", k, v)
+							log.Println("[debug] blobs header: ", k, v)
 						}
 					}
 					tmpResp.Body.Close()

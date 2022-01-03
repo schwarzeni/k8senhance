@@ -46,9 +46,9 @@ func HandleService(server *Server) {
 		_, _ = io.Copy(resp, f)
 	}).Methods(http.MethodGet)
 
-	r.HandleFunc("/agentapi/v1/manifest/{name}/{version}", func(w http.ResponseWriter, r *http.Request) {
-		imageName := mux.Vars(r)["name"]
-		imageVersion := mux.Vars(r)["version"]
+	r.HandleFunc("/agentapi/v1/manifest", func(w http.ResponseWriter, r *http.Request) {
+		imageName := r.URL.Query().Get("name")
+		imageVersion := r.URL.Query().Get("version")
 		data, ok, err := cache.ImageManifest(imageName, imageVersion)
 		if err != nil {
 			log.Printf("[err] get image manifest cache %v", err)
