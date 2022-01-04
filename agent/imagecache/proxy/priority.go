@@ -1,4 +1,4 @@
-package server
+package proxy
 
 import (
 	"github.com/schwarzeni/k8senhance/agent/imagecache/cache"
@@ -10,6 +10,7 @@ var metricProcessor = processor.NewScoreProcessor()
 
 // prioritizeNodes 选出合适的节点
 // 如果不存在，则返回 -1
+// 如果小于阈值，返回 -2
 func prioritizeNodes(layer string, nodes []*QueryLayerRespDTO) int {
 	// TODO: extract max size to setting
 	//log.Println("[debug] priority nodes")
@@ -19,7 +20,7 @@ func prioritizeNodes(layer string, nodes []*QueryLayerRespDTO) int {
 	size, ok, _ := cache.LayerInfo(layer)
 	//log.Println("[debug] priority size", layer, size)
 	if ok && size < 1024*500 {
-		return -1
+		return -2
 	}
 	maxScore := 0.0
 	maxScoreIdx := -1

@@ -10,6 +10,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/schwarzeni/k8senhance/agent/imagecache/proxy"
+
 	"github.com/gorilla/mux"
 	"github.com/schwarzeni/k8senhance/agent/imagecache/cache"
 )
@@ -20,7 +22,7 @@ func HandleService(server *Server) {
 
 	r.HandleFunc("/agentapi/v1/layerquery/{layerid}", func(resp http.ResponseWriter, req *http.Request) {
 		currMetric, _ := cache.NodeMetric()
-		respData := QueryLayerRespDTO{
+		respData := proxy.QueryLayerRespDTO{
 			Metric: *currMetric,
 		}
 		// TODO: 这里获取 layer 可以使用 cache
