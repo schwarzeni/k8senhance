@@ -66,8 +66,15 @@ func (hj *HealthJob) Run() {
 	}
 }
 
+var globalHealthJob *HealthJob
+
 func NewHealthJob(gc *config.Config) *HealthJob {
-	return &HealthJob{gc: gc}
+	globalHealthJob = &HealthJob{gc: gc}
+	return globalHealthJob
+}
+
+func GetHealthJobInstance() *HealthJob {
+	return globalHealthJob
 }
 
 func extractPort(url string) string {
